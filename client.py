@@ -8,6 +8,9 @@ os.environ['SDL_VIDEO_WINDOW_POS'] = '400,100'
 
 screen = pygame.display.set_mode((600, 600))
 pygame.display.set_caption("Tic-Tac-Toe")
+icon = pygame.image.load("res/tic-tac-toe-icon_32x32.png")
+pygame.display.set_icon(icon)
+
 grid = Grid()
 
 turn = False
