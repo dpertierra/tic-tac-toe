@@ -4,7 +4,7 @@ from grid import Grid
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = '400,100'
 
-surface = pygame.display.set_mode((600, 600))
+screen = pygame.display.set_mode((600, 600))
 pygame.display.set_caption("Tic-Tac-Toe")
 
 grid = Grid()
@@ -40,9 +40,9 @@ while running:
             elif event.key == pygame.K_ESCAPE:
                 running = False
 
-    surface.fill((0, 0, 0))
-    grid.draw(surface)
+    screen.fill((0, 0, 0))
+    grid.draw(screen)
     if grid.game_over:
-        grid.drawWinningLine(surface)
-        grid.renderResultmsg(surface)
+        grid.drawWinningLine(screen)
+        grid.renderResultmsg(screen)
     pygame.display.flip()

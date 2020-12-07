@@ -3,11 +3,18 @@ import os
 import socket
 import threading
 from grid import Grid
-
+from random import randint
 os.environ['SDL_VIDEO_WINDOW_POS'] = '400,100'
 
-surface = pygame.display.set_mode((600, 600))
+PLAYERS = ('X', 'O')
+
+screen = pygame.display.set_mode((600, 600))
 pygame.display.set_caption("Tic-Tac-Toe")
+grid = Grid()
+running = True
+player = PLAYERS[randint(0, 1)]
+turn = False
+playing = 'True'
 
 
 # Create a separate thread to send and receive data to not block the execution while waiting for a connection
@@ -18,31 +25,36 @@ def createThread(target):
 
 
 # Socket Constants
-HOST = '127.0.0.1'
-PORT = 65432
+HOST = '127.0.0.1'  # TODO: Change to server IP
+PORT = 65432        # TODO: Change to server Port
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((HOST, PORT))
 
 
+# noinspection DuplicatedCode
 def receiveData():
+    global turn
     while True:
         data = sock.recv(1024).decode()
+        data = data.split('-')
+        x, y = int(data[0]), int(data[1])
+        if data[2] == 'yourturn':
+            turn = True
+        if data[3] == 'False':
+            grid.game_over = True
+        if grid.getCellValue(x, y) == 0:
+            grid.setCellValue(x, y, data[4])
         print(data)
 
 
 createThread(receiveData)
 
-grid = Grid()
-running = True
-player = 'X'
-
 
 def getCell(position):
-    out = [0, 0]
-    out[0] = position[0] // 200
-    out[1] = position[1] // 200
-    return out
+    x = position[0] // 200
+    y = position[1] // 200
+    return x, y
 
 
 while running:
@@ -50,24 +62,27 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN and not grid.game_over:
-            if pygame.mouse.get_pressed(3)[0]:
-                pos = pygame.mouse.get_pos()
-                cell = getCell(pos)
-                grid.getMouse(cell[0], cell[1], player)
-                if grid.switch_player:
-                    if player == 'X':
-                        player = 'O'
-                    else:
-                        player = 'X'
+            if turn:
+                if pygame.mouse.get_pressed(3)[0]:
+                    pos = pygame.mouse.get_pos()
+                    cell_x, cell_y = getCell(pos)
+                    grid.getMouse(cell_x, cell_y, player)
+                    if grid.game_over:
+                        playing = 'False'
+                    send_data = f'{cell_x}-{cell_y}-yourturn-{playing}-{player}'.encode()
+                    sock.send(send_data)
+                    turn = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and grid.game_over:
                 grid.clearGrid()
                 grid.game_over = False
+                playing = 'True'
             elif event.key == pygame.K_ESCAPE:
                 running = False
 
-    surface.fill((0, 0, 0))
-    grid.draw(surface)
+    screen.fill((0, 0, 0))
+    grid.draw(screen)
     if grid.game_over:
-        grid.drawWinningLine(surface)
+        grid.drawWinningLine(screen)
+        grid.renderResultmsg(screen)
     pygame.display.flip()

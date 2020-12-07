@@ -27,15 +27,18 @@ class Grid:
 
     def setCellValue(self, x, y, value):
         self.grid[y][x] = value
+        if self.isWinner(value):
+            print(value, 'Won!\nPress the SpaceBar to play again')
+            self.game_over = True
+            self.result = f'{value} won!\nPress the SpaceBar\nto play again'
+        elif self.isGridFull():
+            print("It's a tie!\nPress the SpaceBar to play again")
+            self.game_over = True
+            self.result = "It's a tie!\nPress the SpaceBar\nto play again"
 
     def getMouse(self, x, y, player):
         if self.getCellValue(x, y) == 0:
-            print(y, x)
-            self.switch_player = True
-            if player == 'X':
-                self.setCellValue(x, y, 'X')
-            elif player == 'O':
-                self.setCellValue(x, y, 'O')
+            self.setCellValue(x, y, player)
             if self.isWinner(player):
                 print(player, 'Won!\nPress the SpaceBar to play again')
                 self.game_over = True
@@ -47,19 +50,19 @@ class Grid:
         else:
             self.switch_player = False
 
-    def draw(self, surface):
+    def draw(self, screen):
         for line in self.grid_lines:
-            pygame.draw.line(surface, (200, 200, 200), line[0], line[1], 2)
+            pygame.draw.line(screen, (200, 200, 200), line[0], line[1], 2)
         for y in range(len(self.grid)):
             for x in range(len(self.grid[y])):
                 if self.getCellValue(x, y) == 'X':
-                    surface.blit(x_img, (x * 200 + 13, y * 200 + 13))
+                    screen.blit(x_img, (x * 200 + 13, y * 200 + 13))
                 elif self.getCellValue(x, y) == 'O':
-                    surface.blit(o_img, (x * 200 + 13, y * 200 + 13))
+                    screen.blit(o_img, (x * 200 + 13, y * 200 + 13))
 
-    def drawWinningLine(self, surface):
+    def drawWinningLine(self, screen):
         if self.winning_line is not None:
-            pygame.draw.line(surface, (50, 205, 50), self.winning_line[0], self.winning_line[1], 10)
+            pygame.draw.line(screen, (50, 205, 50), self.winning_line[0], self.winning_line[1], 10)
 
     def isWinner(self, player):
         if self.grid[0][0] == player and self.grid[1][0] == player and self.grid[2][0] == player:
@@ -125,11 +128,15 @@ class Grid:
             out = [(600, 0), (0, 600)]
         self.winning_line = out
 
-    def renderResultmsg(self, surface):
+    def renderResultmsg(self, screen):
         texts = self.result.split('\n')
-        text_surface = self.font.render(texts[0], False, (255, 255, 255))
-        text_surface2 = self.font.render(texts[1], False, (255, 255, 255))
-        text_surface3 = self.font.render(texts[2], False, (255, 255, 255))
-        surface.blit(text_surface, (240, 250))
-        surface.blit(text_surface2, (110, 300))
-        surface.blit(text_surface3, (165, 350))
+        if 'won' in texts[0]:
+            self.renderMsg(screen, (240, 250), (255, 255, 255), texts[0])
+        else:
+            self.renderMsg(screen, (230, 250), (255, 255, 255), texts[0])
+        self.renderMsg(screen, (110, 300), (255, 255, 255), texts[1])
+        self.renderMsg(screen, (165, 350), (255, 255, 255), texts[2])
+
+    def renderMsg(self, screen, position, color, text):
+        text_surface = self.font.render(text, False, color)
+        screen.blit(text_surface, position)
