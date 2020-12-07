@@ -1,5 +1,7 @@
+import os
 import pygame
-
+from pygame.locals import *
+pygame.font.init()
 x_img = pygame.image.load("res/X.png")
 o_img = pygame.image.load("res/O.png")
 
@@ -17,7 +19,8 @@ class Grid:
         self.grid = [[0 for _ in range(3)] for _ in range(3)]
         self.game_over = False
         self.winning_line = None
-        self.surface = None
+        self.result = None
+        self.font = pygame.font.Font(os.path.join("res", "font", "font.otf"), 50)
 
     def getCellValue(self, x, y):
         return self.grid[y][x]
@@ -36,9 +39,11 @@ class Grid:
             if self.isWinner(player):
                 print(player, 'Won!\nPress the SpaceBar to play again')
                 self.game_over = True
+                self.result = f'{player} won!\nPress the SpaceBar\nto play again'
             elif self.isGridFull():
                 print("It's a tie!\nPress the SpaceBar to play again")
                 self.game_over = True
+                self.result = "It's a tie!\nPress the SpaceBar\nto play again"
         else:
             self.switch_player = False
 
@@ -51,7 +56,6 @@ class Grid:
                     surface.blit(x_img, (x * 200 + 13, y * 200 + 13))
                 elif self.getCellValue(x, y) == 'O':
                     surface.blit(o_img, (x * 200 + 13, y * 200 + 13))
-        self.surface = surface
 
     def drawWinningLine(self, surface):
         if self.winning_line is not None:
@@ -120,3 +124,12 @@ class Grid:
         elif line == 7:
             out = [(600, 0), (0, 600)]
         self.winning_line = out
+
+    def renderResultmsg(self, surface):
+        texts = self.result.split('\n')
+        text_surface = self.font.render(texts[0], False, (255, 255, 255))
+        text_surface2 = self.font.render(texts[1], False, (255, 255, 255))
+        text_surface3 = self.font.render(texts[2], False, (255, 255, 255))
+        surface.blit(text_surface, (240, 250))
+        surface.blit(text_surface2, (110, 300))
+        surface.blit(text_surface3, (165, 350))

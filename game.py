@@ -44,4 +44,5 @@ while running:
     grid.draw(surface)
     if grid.game_over:
         grid.drawWinningLine(surface)
+        grid.renderResultmsg(surface)
     pygame.display.flip()
