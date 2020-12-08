@@ -3,6 +3,7 @@ import os
 import socket
 import threading
 from grid import Grid
+from constants import *
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = '400,100'
 
@@ -24,9 +25,6 @@ def createThread(target):
 
 
 # Socket Constants
-HOST = '127.0.0.1'  # TODO: Change to server IP
-PORT = 65432  # TODO: Change to server Port
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((HOST, PORT))
 

@@ -3,6 +3,7 @@ import os
 import socket
 import threading
 from grid import Grid
+from constants import *
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = '400,100'
 
@@ -15,14 +16,12 @@ grid = Grid()
 turn = True
 
 # Socket Constants
-HOST = '127.0.0.1'
-PORT = 65432
 connection_established = False
 conn, addr = None, None
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.bind((HOST, PORT))
+sock.bind((HOST, PORT))  # Gets Constants from constants file
 sock.listen(1)
 
 
